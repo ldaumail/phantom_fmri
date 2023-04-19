@@ -1,0 +1,39 @@
+#!/bin/bash
+## the goal of this script is to convert classic DICOM files into BIDS format using heudiconv
+## Loic Daumail - 03232023
+##Code adapted from tutorial https://reproducibility.stanford.edu/bids-tutorial-series-part-2a/
+##requirements: Docker, heudiconv
+##STEP 0: install the heudiconv image
+docker pull nipy/heudiconv:latest
+
+## STEP #1 This command will output a hidden .heudiconv folder within the Nifti folder that contains a 
+## dicominfo .tsv file used to construct the heuristic file.
+
+docker run --rm -it -v /Users/tong_processor/Desktop/Loic/phantom_mri/data:/base nipy/heudiconv:latest -d /base/gstudy_downloads/{subject}/DICOM-Classic/*.DCM -o /base/BIDS_conv/Nifti2/ -f convertall -s M017 F019 -ss 001 -c none --overwrite
+
+
+## STEP #2 move the heuristic.py file to a Nifti/${subj}/code folder
+SUB="M017" #we only need the heuristic file of one subject that we will use for all subjects
+SES=(001)
+unset subj
+for subj in $SUB; do
+for sess in $SES; do
+mkdir /Users/tong_processor/Desktop/Loic/phantom_mri/data/BIDS_conv/Nifti/code
+cp /Users/tong_processor/Desktop/Loic/phantom_mri/data/BIDS_conv/Nifti/.heudiconv/${subj}/${sess}/info/heuristic.py /Users/tong_processor/Desktop/Loic/phantom_mri/data/BIDS_conv/Nifti/code
+done
+done
+
+## Once you reached this stage, modify: 1) dicominfo.tsv file in each .heudiconv/${sub} folder to add descriptions of the task 
+## for each run 
+## 2) the heuristic.py file in Nifti/code/ folder to make specifications on
+## the way you want to organize the data and which dicom file based on the info in dicominfo.tsv file 
+## and run you want to convert
+## follow this tutorial: http://nipy.org/workshops/2017-03-boston/lectures/bids-heudiconv/#21
+
+
+## STEP #3 run heudiconv again, with dcm2niix
+
+docker run --rm -it -v /Users/tong_processor/Desktop/Loic/phantom_mri/data/:/base nipy/heudiconv:latest -d /base/gstudy_downloads/{subject}/DICOM-Classic/*.DCM -o /base/BIDS_conv/Nifti3 -f /base/BIDS_conv/Nifti3/code/heuristic.py -s M017 F019 -ss 01 -c dcm2niix -b --overwrite
+
+
+### STEP 4: Test the validity of your dataset: http://bids-standard.github.io/bids-validator/

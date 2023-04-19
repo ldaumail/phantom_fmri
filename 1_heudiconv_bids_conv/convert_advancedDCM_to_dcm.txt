@@ -1,0 +1,40 @@
+#!/bin/bash
+
+##convert from advanced DICOM format to standard (classic) DICOM format
+#brew install dcmtk
+#baseDir=/Users/tong_processor/Desktop/Loic/phantom_mri/data
+#SUB="M017 F019"
+
+
+##first decompress with dcmconv
+#for subj in $SUB; do
+#for ses in 001; do
+#cd $baseDir/gstudy_downloads/${subj}/ses-${ses}/DICOM/
+#mkdir $baseDir/gstudy_downloads/${subj}/ses-${ses}/convDCM
+#for i in $(find *.DCM -type f -print); do
+#dcmconv ./${i} .././convDCM/${i}
+#done
+#done
+#done
+
+#cd ../../../../
+##convert to standard DICOM format
+#for subj in $SUB; do
+#for ses in 001; do
+#cd $baseDir/gstudy_downloads/${subj}/ses-${ses}/convDCM
+#mkdir $baseDir/gstudy_downloads/${subj}/ses-${ses}/standardDCM
+#find *.DCM -depth -name '*.*' -execdir bash -c 'mv -i "$1" "${1//./_}"' bash {} \; #remove decimal points from file names 
+#find *_DCM -depth -name '*_DCM*' -execdir bash -c 'mv -i "$1" "${1//_DCM/.DCM}"' bash {} \; #add only one decimal point for file format
+#for i in $(find *.DCM -type f -print); do
+#docker run -ti -v $baseDir/gstudy_downloads/${subj}/ses-${ses}:/base --entrypoint="" dcm4che/dcm4che-tools \
+#emf2sf --out-file base/standardDCM/standard_${i} /base/convDCM/${i}
+#done 
+#done
+#done
+
+#try for one subject
+#docker run -ti -v $baseDir/gstudy_downloads/M017/ses-001:/base --entrypoint="" dcm4che/dcm4che-tools \
+#emf2sf --out-file base/standardDCM/standard_Tong_349767_01_01_13-45-14_WIP_Survey_32ch_HeadCoil_01.DCM /base/convDCM/#Tong_349767_01_01_13-45-14_WIP_Survey_32ch_HeadCoil_01.DCM
+
+
+
