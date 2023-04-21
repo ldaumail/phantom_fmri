@@ -9,7 +9,7 @@ import subprocess
 import time
 
 path = '/Users/tong_processor/Desktop/Loic/phantom_mri/data'
-bids = 'BIDS_conv/Nifti'
+bids = 'BIDS_conv/Nifti_topup'
 # run mriqc
 version = "v23.1.0rc0" #downloaded on 04/18/2023 version is 23.1.0rc0
 outdir = f"{path}/derivatives/mriqc-{version}"
@@ -40,23 +40,29 @@ if not os.path.isfile(f"{outdir}/group_bold.html"):
 # TODO: allow to run these in parallel if > 16 available cores, with 8 cores per subject
 # https://fmriprep.org/en/stable/faq.html#running-subjects-in-parallel
 indir = f"{path}/{bids}"  # change to a derivative dataset as required, e.g. "derivatives/NORDIC"
-version = "v20.2.0"
-outdir = f"{path}/derivatives/fmriprep-{version}"
+versionNum = "v23.0.1"
+version = "latest"
+outdir = f"{path}/derivatives/fmriprep-{versionNum}"
 os.makedirs(outdir, exist_ok=True)
 workdir = f"{path}/derivatives/fmriprep_work"
 os.makedirs(workdir, exist_ok=True)
-for subject in subjects:
+for subject in subjects.participant_id:
+    subject = subject[4:]
     if not op.isdir(f"{outdir}/sub-{subject}"):
         cmd = f"docker run --memory=\"22g\" --rm " \
               f"-v {indir}:/data:ro " \
               f"-v {outdir}:/out "\
               f"-v {workdir}:/work " \
-              f"poldracklab/fmriprep:{version} " \
+              f"-v $FREESURFER_HOME:/fsDir " \
+              f"nipreps/fmriprep:{version} " \
               f"--resource-monitor " \
               f"--nprocs 2 " \
-              f"--mem-mb 32000 " \
-              f"--fs-license-file /Applications/freesurfer/7.3.2/license.txt " \
-              f"--output-spaces func " \
+              f"--mem-mb 22000 " \
+              f"--low-mem " \
+              f"--stop-on-first-crash " \
+              f"--use-aroma " \
+              f"--fs-license-file /fsDir/license.txt " \
+              f"--output-spaces fsaverage " \
               f"-w /work " \
               f"/data /out/ participant --participant-label {subject}"  # indir, outdir, analysis level
         os.system(cmd)
