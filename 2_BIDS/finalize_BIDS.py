@@ -19,7 +19,7 @@ path = '/Users/tong_processor/Desktop/Loic/phantom_mri/data/BIDS_conv/Nifti'
 os.chdir(path)
 # make link to fMRI custom scripts dir
 if not op.exists(f"code/utils"):
- os.system(f"ln -s $HOME/Desktop/Loic/mri_code/loic_code/BIDS/utils code/utils")
+ os.system(f"ln -s $HOME/Desktop/Loic/mri_code/loic_code/2_BIDS/utils code/utils")
 sys.path.append("code")
 
 from utils import philips_slice_timing
@@ -35,10 +35,11 @@ for subject in subjects.participant_id:
 
     sourcedir = f"{path}/{subject}/"
     os.chdir(sourcedir)
-    funcdir = f"{sourcedir}func"
-    fmapdir = f"{sourcedir}fmap"
-    anatdir = f"{sourcedir}anat"
     sesDir = 'ses-0%s' %sesNum
+    funcdir = f"{sourcedir}{sesDir}/func"
+    fmapdir = f"{sourcedir}{sesDir}/fmap"
+    anatdir = f"{sourcedir}{sesDir}/anat"
+
     os.makedirs(sesDir, exist_ok=True)
     # shutil.move(funcdir, f"{sesDir}/func", copy_function=copytree)  # move files, don"t copy
     # shutil.move(fmapdir, f"{sesDir}/fmap", copy_function=copytree)
@@ -97,39 +98,40 @@ for subject in subjects.participant_id:
         json.dump(epiJson, open(TUjsonpath, "w+"), sort_keys=True, indent=4)
 
 
-        # ANAT
+    # ANAT
 
-        ## 1) Modify filenames of b0 shimmed scans (magnitude file and associated fieldmap file)
-        os.chdir(fmapdir)
+    ## 1) Modify filenames of b0 shimmed scans (magnitude file and associated fieldmap file)
+    os.chdir(fmapdir)
 
-        for file in os.listdir():
-            if 'magnitude1' in file:
-                newfile = file.replace('magnitude1', 'magnitude')
-                os.rename(file, newfile)
-            elif 'magnitude2' in file:
-                newfile = file.replace('magnitude2', 'fieldmap')
-                os.rename(file, newfile)
-        files = os.listdir()
-        ## 2) edit .tsv file accordingly
-        os.chdir(f"../")
-        subjfname = '%s_ses-0%s_scans.tsv' % (subject, sesNum)
-        subjscans = pd.read_csv(subjfname, sep='\t')
-        subjscans = subjscans.replace('magnitude1', 'magnitude', regex=True)
-        subjscans = subjscans.replace('magnitude2', 'fieldmap', regex=True)
-        subjscans.to_csv(subjfname, sep='\t')  # save updated table to replace the old one
+    for file in os.listdir():
+        if 'magnitude1' in file:
+            newfile = file.replace('magnitude1', 'magnitude')
+            os.rename(file, newfile)
+        elif 'magnitude2' in file:
+            newfile = file.replace('magnitude2', 'fieldmap')
+            os.rename(file, newfile)
+    files = os.listdir()
+    ## 2) edit .tsv file accordingly
+    os.chdir(f"../")
+    subjfname = '%s_ses-0%s_scans.tsv' % (subject, sesNum)
+    subjscans = pd.read_csv(subjfname, sep='\t')
+    subjscans = subjscans.replace('magnitude1', 'magnitude', regex=True)
+    subjscans = subjscans.replace('magnitude2', 'fieldmap', regex=True)
+    subjscans.to_csv(subjfname, sep='\t')  # save updated table to replace the old one
 
 
-            # Link b0 shimmed fieldmaps to anat scans
-            # add required meta data to json file
-            scandata = json.load(open(outpath, "r+"))
-            if "IntendedFor" not in scandata:
-                intendedscans = glob.glob(f"sub-{subject}/ses-{s + 1}/func/*.nii")
-                if subject not in ["F016", "M012", "M015"]:
-                    intendedscans += glob.glob(f"sub-{subject}/ses-{s + 1}/anat/*.nii")
-                scandata["IntendedFor"] = sorted([x[9:] for x in intendedscans])
-            if component == "fieldmap" and "Units" not in scandata:
-                scandata["Units"] = "Hz"
-            json.dump(scandata, open(outpath, "w+"), sort_keys=True, indent=4)
+    # Link b0 shimmed fieldmaps to anat scans
+    # add required meta data to json file
+    fmapjson = [f for f in os.listdir(fmapdir) if f.endswith('acq-b0shimmed_run-001_fieldmap.json') or f.endswith('acq-b0shimmed_run-001_magnitude.json')]
+
+    for fmap in fmapjson:
+        fmapjsonpath = f"{fmapdir}/{fmap}"
+        scandata = json.load(open(fmapjsonpath, "r+"))
+        if "IntendedFor" not in scandata:
+            intendedscans = glob.glob(f"{path}/{subject}/ses-{sesNum:02}/func/*.nii.gz")
+            intendedscans += glob.glob(f"{path}/{subject}/ses-{sesNum:02}/anat/*.nii.gz")
+            scandata["IntendedFor"] = sorted([x[77:] for x in intendedscans])
+        json.dump(scandata, open(fmapjsonpath, "w+"), sort_keys=True, indent=4)
 
 
 
