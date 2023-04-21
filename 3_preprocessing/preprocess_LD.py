@@ -56,7 +56,7 @@ for subject in subjects.participant_id:
               f"-v $FREESURFER_HOME:/fsDir " \
               f"nipreps/fmriprep:{version} " \
               f"--resource-monitor " \
-              f"--nprocs 2 " \
+              f"--nprocs 8 " \
               f"--mem-mb 22000 " \
               f"--low-mem " \
               f"--stop-on-first-crash " \
