@@ -9,7 +9,7 @@ docker pull nipy/heudiconv:latest
 ## STEP #1 This command will output a hidden .heudiconv folder within the Nifti folder that contains a 
 ## dicominfo .tsv file used to construct the heuristic file.
 
-docker run --rm -it -v /Users/tong_processor/Desktop/Loic/phantom_mri/data:/base nipy/heudiconv:latest -d /base/gstudy_downloads/{subject}/DICOM-Classic/*.DCM -o /base/BIDS_conv/Nifti2/ -f convertall -s M017 F019 -ss 001 -c none --overwrite
+docker run --rm -it -v /home/tonglab/Loic/phantom_mri_data:/base nipy/heudiconv:latest -d /base/sourceData/{subject}/DICOM-Classic/*.DCM -o /base/nifti2/ -f convertall -s M017 F019 -ss 001 -c none --overwrite
 
 
 ## STEP #2 move the heuristic.py file to a Nifti/${subj}/code folder
@@ -29,11 +29,13 @@ done
 ## the way you want to organize the data and which dicom file based on the info in dicominfo.tsv file 
 ## and run you want to convert
 ## follow this tutorial: http://nipy.org/workshops/2017-03-boston/lectures/bids-heudiconv/#21
+## see also: https://neuroimaging-core-docs.readthedocs.io/en/latest/pages/heudiconv.html#:~:text=HeuDiConv%20%28Heuristic%20Dicom%20Conversion%29%20provides%20sophisticated%20and%20flexible,BIDS%20expects%20%28e.g.%2C%20CHANGES%2C%20dataset_description.json%2C%20participants.tsv%2C%20README%20etc.%29.
 
 
 ## STEP #3 run heudiconv again, with dcm2niix
+converter="heuristic.py"
 
-docker run --rm -it -v /Users/tong_processor/Desktop/Loic/phantom_mri/data/:/base nipy/heudiconv:latest -d /base/gstudy_downloads/{subject}/DICOM-Classic/*.DCM -o /base/BIDS_conv/Nifti3 -f /base/BIDS_conv/Nifti3/code/heuristic.py -s M017 F019 -ss 01 -c dcm2niix -b --overwrite
+docker run --rm -it -v /home/tonglab/Loic/phantom_mri_data:/base nipy/heudiconv:latest -d /base/sourceData/{subject}/{session}/DICOM-Classic/*.DCM -o /base/Nifti -f /base/Nifti/code/${converter} -s M017 F019 -ss 01 -c dcm2niix -b --minmeta --overwrite
 
 
 ### STEP 4: Test the validity of your dataset: http://bids-standard.github.io/bids-validator/

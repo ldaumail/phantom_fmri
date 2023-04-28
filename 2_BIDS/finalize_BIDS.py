@@ -15,11 +15,11 @@ import pandas as pd
 import stat
 
 #def finalizeBIDS():
-path = '/Users/tong_processor/Desktop/Loic/phantom_mri/data/BIDS_conv/Nifti'
+path = '/home/tonglab/Loic/phantom_mri_data/Nifti'
 os.chdir(path)
 # make link to fMRI custom scripts dir
 if not op.exists(f"code/utils"):
- os.system(f"ln -s $HOME/Desktop/Loic/mri_code/loic_code/2_BIDS/utils code/utils")
+ os.system(f"ln -s /home/tonglab/Loic/mri_code/phantom_fmri-main/2_BIDS/utils code/utils")
 sys.path.append("code")
 
 from utils import philips_slice_timing
@@ -60,21 +60,26 @@ for subject in subjects.participant_id:
         runNum = j[-17:-10]  # make sure you take the topup file of the right run
         jsonpath = f"{sesDir}/func/{j}"
         #os.chmod(jsonpath,stat.S_IRUSR | stat.S_IWUSR | stat.S_IRWXG)#| stat.S_IRGRP | stat.S_IWGRP)
-        os.chmod(jsonpath, stat.S_IRWXU | stat.S_IRWXG)
+        #os.chmod(jsonpath, stat.S_IRWXU | stat.S_IRWXG)
+        # os.system(f"chmod +rwx {jsonpath}")
         boldJson = json.load(open(jsonpath, "r+"))
-
+        if "TaskName" not in boldJson:
+            scandata["TaskName"] = j[21:-25]
         if "PhaseEncodingDirection" not in boldJson:
             boldJson["PhaseEncodingDirection"] = "j-"
         if "SliceTiming" not in boldJson:
             boldJson["SliceTiming"] = philips_slice_timing(jsonpath)
         if "TotalReadoutTime" not in boldJson:
-            boldJson["TotalReadoutTime"] = boldJson["EstimatedTotalReadoutTime"]
-        if "B0FieldIdentifier" not in boldJson:
-            identifier = 'epi_bold_%s_fmap'%runNum
-            boldJson["B0FieldIdentifier"] = identifier
-        if "B0FieldSource" not in boldJson:
-            source = 'epi_bold_%s_fmap'%runNum
-            boldJson["B0FieldSource"] = source
+            if "EstimatedTotalReadoutTime" in boldJson:
+                boldJson["TotalReadoutTime"] = boldJson["EstimatedTotalReadoutTime"]
+            elif "EstimatedTotalReadoutTime" not in boldJson:
+                boldJson["TotalReadoutTime"] = 0.0325728 #artbitrary value, based on phantom experiment runs
+        # if "B0FieldIdentifier" not in boldJson:
+        #     identifier = 'epi_bold_%s_fmap'%runNum
+        #     boldJson["B0FieldIdentifier"] = identifier
+        # if "B0FieldSource" not in boldJson:
+        #     source = 'epi_bold_%s_fmap'%runNum
+        #     boldJson["B0FieldSource"] = source
         json.dump(boldJson, open(jsonpath, "w+"), sort_keys=True, indent=4)
 
         # repeat for top up file
@@ -88,13 +93,16 @@ for subject in subjects.participant_id:
         if "SliceTiming" not in epiJson:
             epiJson["SliceTiming"] = philips_slice_timing(TUjsonpath)
         if "TotalReadoutTime" not in epiJson:
-            epiJson["TotalReadoutTime"] = epiJson["EstimatedTotalReadoutTime"]
+            if "EstimatedTotalReadoutTime" in epiJson:
+                epiJson["TotalReadoutTime"] = epiJson["EstimatedTotalReadoutTime"]
+            elif "EstimatedTotalReadoutTime" not in epiJson:
+                epiJson["TotalReadoutTime"] = 0.0333996 #arbitrary realistic value, based on phantom topup runs
         if "IntendedFor" not in epiJson:
             nifti_target = f"{subject}/{jsonpath[:-5]}.nii.gz"  # link bold run nifti path to the corresponding epi json file for topup
             epiJson["IntendedFor"] = nifti_target[9:]
-        if "B0FieldIdentifier" not in epiJson:
-            identifier = 'epi_bold_%s_fmap' % runNum
-            epiJson["B0FieldIdentifier"] = identifier
+        # if "B0FieldIdentifier" not in epiJson:
+        #     identifier = 'epi_bold_%s_fmap' % runNum
+        #     epiJson["B0FieldIdentifier"] = identifier
         json.dump(epiJson, open(TUjsonpath, "w+"), sort_keys=True, indent=4)
 
 
@@ -128,10 +136,13 @@ for subject in subjects.participant_id:
         fmapjsonpath = f"{fmapdir}/{fmap}"
         scandata = json.load(open(fmapjsonpath, "r+"))
         if "IntendedFor" not in scandata:
-            intendedscans = glob.glob(f"{path}/{subject}/ses-{sesNum:02}/func/*.nii.gz")
-            intendedscans += glob.glob(f"{path}/{subject}/ses-{sesNum:02}/anat/*.nii.gz")
+            intendedscans = glob.glob(f"{path}/{subject}/ses-{sesNum:02}/func/*.nii*")
+            intendedscans += glob.glob(f"{path}/{subject}/ses-{sesNum:02}/anat/*.nii*")
             scandata["IntendedFor"] = sorted([x[77:] for x in intendedscans])
         json.dump(scandata, open(fmapjsonpath, "w+"), sort_keys=True, indent=4)
 
-
-
+## Localizer,rest and prf files:total readout time
+# base = '/home/tonglab/Loic/phantom_mri_data'
+# for subject in subjects.participant_id:
+#
+#     niftidir = f"{base}/sourceData/{subject}/0{sesNum}/"

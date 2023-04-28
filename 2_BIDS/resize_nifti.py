@@ -11,7 +11,7 @@ import pandas as pd
 import json
 import glob
 import sys
-path = '/Users/tong_processor/Desktop/Loic/phantom_mri/data/BIDS_conv/Nifti_topup'
+path = '/home/tonglab/Loic/phantom_mri_data/Nifti'
 os.chdir(path)
 sys.path.append("code")
 from utils import philips_slice_timing
