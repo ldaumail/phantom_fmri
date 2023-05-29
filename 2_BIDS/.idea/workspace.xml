@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="caf84a14-3295-4618-94c1-e28b5072928b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../1_heudiconv_bids_conv/implement_heudiconv.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../1_heudiconv_bids_conv/implement_heudiconv.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/finalize_BIDS.py" beforeDir="false" afterPath="$PROJECT_DIR$/finalize_BIDS.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../3_preprocessing/preprocess_LD.py" beforeDir="false" afterPath="$PROJECT_DIR$/../3_preprocessing/preprocess_LD.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="2P12JhE94cO2MHx5zbiJbCqy0Nl" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="caf84a14-3295-4618-94c1-e28b5072928b" name="Changes" comment="" />
+      <created>1682610196659</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1682610196659</updated>
+    </task>
+    <servers />
+  </component>
+</project>
